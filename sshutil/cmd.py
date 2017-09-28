@@ -115,14 +115,13 @@ class SSHCommand (conn.SSHConnection):
             self.error_output = "".join([x.decode('utf-8')
                                          for x in read_to_eof(self.chan.recv_stderr)])
 
+            return (self.exit_code, self.output, self.error_output)
+        finally:
             if self.debug:
                 logger.debug("RESULT: exit: %s stdout: '%s' stderr: '%s'",
                              str(self.exit_code),
                              str(self.output),
                              str(self.error_output))
-
-            return (self.exit_code, self.output, self.error_output)
-        finally:
             self.close()
 
     def run_stderr (self):

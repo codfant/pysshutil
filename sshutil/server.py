@@ -326,8 +326,12 @@ class SSHServer (object):
                   extra_args=None,
                   port=None,
                   host_key=None,
-                  debug=False):
-
+                  debug=False,
+                  ip_version='IPv4'):
+        if ip_version == 'IPv6':
+            proto_tuple = [("IPv6", '::', socket.AF_INET6)]
+        else:
+            proto_tuple = [("IPv4", '', socket.AF_INET)]
         if server_ctl is None:
             server_ctl = SSHUserPassController()
         self.server_ctl = server_ctl
@@ -358,10 +362,9 @@ class SSHServer (object):
                 if os.path.exists(keypath):
                     self.host_key = ssh.RSAKey.from_private_key_file(keypath)
                     break
-
         # Bind first to IPv6, if the OS supports binding per AF then the IPv4
         # will succeed, otherwise the IPv6 will support both AF.
-        for pname, host, proto in [ ("IPv6", '::', socket.AF_INET6), ("IPv4", '', socket.AF_INET) ]:
+        for pname, host, proto in proto_tuple:
             protosocket = socket.socket(proto, socket.SOCK_STREAM)
             protosocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             if self.debug:
